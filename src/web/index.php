@@ -26,8 +26,6 @@ $url = '';
                 return strnatcmp($a[$sort],$b[$sort]);
             });
         }
-
-
     }
 
 // Sorting
