@@ -3,6 +3,13 @@ require_once './functions.php';
 
 $airports = require './airports.php';
 $url = '';
+$url_filter_by_letter='';
+$url_filter_by_state='';
+$url_sort='';
+
+
+$pages = 10;
+$page = 1;
 
 // Filtering
 /**
@@ -11,22 +18,46 @@ $url = '';
  * (див. завдання фільтрації 1 і 2 нижче)
  */
 
-    if($_SERVER['REQUEST_METHOD'] == 'GET'){
-        if(isset($_GET['filter_by_first_letter'])){
-            $url .= 'filter_by_first_letter=' . $_GET['filter_by_first_letter'];; 
-            $filter = $_GET['filter_by_first_letter'];
-            $airports = array_filter($airports, function($item) use ($filter){
-                return $item['name'][0] == $filter;
-            });
-        }
+if($_SERVER['REQUEST_METHOD'] == 'GET'){
+    empty($url);
 
-        if(isset($_GET['sort'])){
-            $sort = $_GET['sort'];
-            usort($airports, function($a,$b) use ($sort){
-                return strnatcmp($a[$sort],$b[$sort]);
-            });
-        }
+    if(isset($_GET['filter_by_first_letter'])){
+        //$url .= '&filter_by_first_letter=' . $_GET['filter_by_first_letter'];
+        $url_filter_by_letter = '&filter_by_first_letter=' . $_GET['filter_by_first_letter'];
+        
+
+        $filter = $_GET['filter_by_first_letter'];
+        $airports = array_filter($airports, function($item) use ($filter){
+            return $item['name'][0] == $filter;
+        });
     }
+
+    if(isset($_GET['sort'])){
+        $sort = $_GET['sort'];
+        $url_sort = '&sort=' . $_GET['sort'];; 
+        usort($airports, function($a, $b) use ($sort){
+            // strnatcmp - порівнює стрічки
+            return strnatcmp($a[$sort], $b[$sort]);
+        });
+    }
+
+    if(isset($_GET['filter_by_state'])){
+        $url_filter_by_state = '&filter_by_state=' . $_GET['filter_by_state'];
+        $filter = $_GET['filter_by_state'];
+      
+        $airports = array_filter($airports,function($item) use ($filter){
+            return $item['state'][0] == $filter;
+        });
+
+    }
+
+    $page = (isset($_GET['page']))? $_GET['page'] : 1;
+    $airports = array_chunk($airports, 10, true);
+
+    echo $url_filter_by_letter;
+    echo $url_filter_by_state;
+}
+   
 
 // Sorting
 /**
@@ -59,7 +90,7 @@ $url = '';
 <main role="main" class="container">
 
     <h1 class="mt-5">US Airports</h1>
-
+   
     <!--
         Завдання фільтрації No1
          Замініть # в атрибуті HREF так, щоб посилання йшло на ту саму сторінку клавішею filter_by_first_letter
@@ -73,10 +104,10 @@ $url = '';
         Filter by first letter:
 
         <?php foreach (getUniqueFirstLetters(require './airports.php') as $letter): ?>
-            <a href="index.php?filter_by_first_letter=<?= $letter ?>"><?= $letter ?></a>
+            <a href="index.php?page=1&filter_by_first_letter=<?= $letter ?><?= $url_filter_by_state?><?= $url_sort?>"><?= $letter ?></a>
         <?php endforeach; ?>
 
-        <a href="/" class="float-right">Reset all filters</a>
+        <a href="index.php" class="float-right">Reset all filters</a>
     </div>
 
     <!--
@@ -91,10 +122,10 @@ $url = '';
     <table class="table">
         <thead>
             <tr>
-                <th scope="col"><a href="index.php/sort=name">Name</a></th>
-                <th scope="col"><a href="index.php/sort=code">Code</a></th>
-                <th scope="col"><a href="index.php/sort=state">State</a></th>
-                <th scope="col"><a href="index.php/sort=city">City</a></th>
+                <th scope="col"><a href="index.php?sort=name<?= $url?><?= $url_filter_by_letter?><?= $url_filter_by_state?><?="&page=".$page?>">Name</a></th>
+                <th scope="col"><a href="index.php?sort=code<?= $url?><?= $url?><?= $url_filter_by_letter?><?= $url_filter_by_state?><?="&page=".$page?>">Code</a></th>
+                <th scope="col"><a href="index.php?sort=state<?= $url?><?= $url?><?= $url_filter_by_letter?><?= $url_filter_by_state?><?="&page=".$page?>">State</a></th>
+                <th scope="col"><a href="index.php?sort=city<?= $url?><?= $url?><?= $url_filter_by_letter?><?= $url_filter_by_state?><?="&page=".$page?>">City</a></th>
                 <th scope="col">Address</th>
                 <th scope="col">Timezone</th>
             </tr>
@@ -109,11 +140,13 @@ $url = '';
               - коли ви застосовуєте filter_by_state, тоді filter_by_first_letter (див. завдання фільтрації №1) не скидається
                 тобто, якщо ви встановили filter_by_first_letter, ви можете додатково використовувати filter_by_state
         -->
-        <?php foreach ($airports as $airport): ?>
+        <?php foreach ($airports[$page-1] as $airport): ?>
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="index.php?filter_by_state=qwerty&<? $url?>"><?= $airport['state'] ?></a></td>
+            <td>
+                <a href="index.php?filter_by_state=<?= $airport['state'][0] ?><?= $url_filter_by_letter?><?= $url_sort?><?="&page=1"?>"><?= $airport['state'] ?></a>
+            </td>
             <td><?= $airport['city'] ?></td>
             <td><?= $airport['address'] ?></td>
             <td><?= $airport['timezone'] ?></td>
@@ -132,11 +165,37 @@ $url = '';
     -->
     <nav aria-label="Navigation">
         <ul class="pagination justify-content-center">
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+           <!-- <li class="page-item active"><a class="page-link" href="#">1</a></li>
             <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+         
+            <?php
+                if(count($airports) < 10)
+                    foreach(range(1, count($airports)) as $i)
+                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+                if(count($airports) > 9 && $page < 10)   
+                    foreach(range(1, 10) as $i)
+                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+
+                if(count($airports) - 10 < 10 && $page > 10)
+                    foreach(range(count($airports) - 9, count($airports)) as $i)
+                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+
+                if(count($airports) > 9 && count($airports) - 10 < 10 && $page == 10)
+                    foreach(range($page - 5, count($airports)) as $i)
+                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+
+                if(count($airports) > 9 && count($airports) - 10 > 10 && $page >= 10 && $page <= count($airports) - 9)
+                    foreach(range($page - 5, $page + 5) as $i)
+                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+
+                if(count($airports) > 9 && count($airports) - 10 > 10 && $page > count($airports) - 9)
+                    foreach(range(count($airports) - 9, count($airports)) as $i)
+                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+            ?>
         </ul>
     </nav>
 
+     <?php echo $url;?>
 </main>
 </html>
