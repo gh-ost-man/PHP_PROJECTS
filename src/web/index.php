@@ -10,7 +10,8 @@ $url_sort='';
 
 $pages = 10;
 $page = 1;
-
+$start_page=1;
+$end_page=1;
 // Filtering
 /**
  * Тут вам потрібно перевірити $ _GET запит, якщо він має якусь фільтрацію
@@ -20,6 +21,7 @@ $page = 1;
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
     empty($url);
+    $page = 1;
 
     if(isset($_GET['filter_by_first_letter'])){
         //$url .= '&filter_by_first_letter=' . $_GET['filter_by_first_letter'];
@@ -51,11 +53,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 
     }
 
-    $page = (isset($_GET['page']))? $_GET['page'] : 1;
-    $airports = array_chunk($airports, 10, true);
+     $page = (isset($_GET['page']))? $_GET['page'] : 1;
 
-    echo $url_filter_by_letter;
-    echo $url_filter_by_state;
+    if($page >= 10){
+        $start_page = $page-5;
+        $end_page = (ceil(count($airports)/5) > $page+5)? $page +5:ceil(count($airports)/5);
+    }else{
+        $start_page = 1;
+        $end_page =(ceil(count($airports)/5)>10)?10: ceil(count($airports)/5);
+    }
+    
+    $airports = array_chunk($airports, 5, true);
 }
    
 
@@ -140,7 +148,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
               - коли ви застосовуєте filter_by_state, тоді filter_by_first_letter (див. завдання фільтрації №1) не скидається
                 тобто, якщо ви встановили filter_by_first_letter, ви можете додатково використовувати filter_by_state
         -->
-        <?php foreach ($airports[$page-1] as $airport): ?>
+        
+        
+        <?php if(count($airports)==0){
+            ?>
+            <div class="alert alert-danger alert-dismissible fade show">
+                Not Found!
+            </div>
+        <?php
+            $start_page=1;
+            $end_page=1;
+        }else
+      foreach ($airports[$page-1] as $airport): ?>
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
@@ -152,6 +171,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
             <td><?= $airport['timezone'] ?></td>
         </tr>
         <?php endforeach; ?>
+
+
         </tbody>
     </table>
 
@@ -165,34 +186,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     -->
     <nav aria-label="Navigation">
         <ul class="pagination justify-content-center">
-           <!-- <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li> -->
-         
-            <?php
-                if(count($airports) < 10)
-                    foreach(range(1, count($airports)) as $i)
-                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
-                if(count($airports) > 9 && $page < 10)   
-                    foreach(range(1, 10) as $i)
-                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
+           <?php
+                foreach(range($start_page,$end_page) as $i):
+                    if($i==$page){ ?>
+            <li class="page-item active"><a class="page-link" href="index.php?page=<?=$i . $url_filter_by_letter . $url_filter_by_state . $url_sort?>"><?=$i?></a> </li>
+            <?php } else{ ?>
+                <li class="page-item "><a class="page-link" href="index.php?page=<?=$i . $url_filter_by_letter . $url_filter_by_state . $url_sort?>"><?=$i?></a> </li>
+            <?php } endforeach?>
 
-                if(count($airports) - 10 < 10 && $page > 10)
-                    foreach(range(count($airports) - 9, count($airports)) as $i)
-                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
-
-                if(count($airports) > 9 && count($airports) - 10 < 10 && $page == 10)
-                    foreach(range($page - 5, count($airports)) as $i)
-                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
-
-                if(count($airports) > 9 && count($airports) - 10 > 10 && $page >= 10 && $page <= count($airports) - 9)
-                    foreach(range($page - 5, $page + 5) as $i)
-                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
-
-                if(count($airports) > 9 && count($airports) - 10 > 10 && $page > count($airports) - 9)
-                    foreach(range(count($airports) - 9, count($airports)) as $i)
-                        echo "<li class=page-item><a class=page-link href=index.php?page=$i$url_filter_by_letter$url_filter_by_state$url_sort>$i</a></li>";
-            ?>
         </ul>
     </nav>
 
