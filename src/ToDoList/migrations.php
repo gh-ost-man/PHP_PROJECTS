@@ -24,8 +24,8 @@ $sql = <<<'SQL'
         `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `name` VARCHAR(255) NOT NULL,
         `user_id` INT(10) UNSIGNED NOT NULL,
-        `created_at` DATETIME NOT NULL,
-        FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+        `created_at` DATETIME,
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
     );
 SQL;
 
@@ -43,12 +43,12 @@ $sql = <<<'SQL'
         `name` VARCHAR(255) NOT NULL,
         `user_id` INT(10) UNSIGNED NOT NULL,
         `list_id` INT(10) UNSIGNED NOT NULL,
-        `completed` TINYINT(1) NOT NULL,
-        `position` INT(11) NOT NULL,
-        `created_at` DATETIME NOT NULL,
-        `completed_at` DATETIME NOT NULL,
-        FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-        FOREIGN KEY (`list_id`) REFERENCES `lists` (`id`)
+        `completed` TINYINT(1),
+        `position` INT(11),
+        `created_at` DATETIME,
+        `completed_at` DATETIME,
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+        FOREIGN KEY (`list_id`) REFERENCES `lists` (`id`) ON DELETE CASCADE
     );
 SQL;
 
