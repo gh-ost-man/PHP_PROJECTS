@@ -9,3 +9,7 @@ if(isset($_SESSION['Auth'])){
 }else{
     Header('Location: login_page.php');
 }
+?>
+
+<h1>HELLO ALOHA</h1>
+
