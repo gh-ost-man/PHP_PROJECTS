@@ -5,4 +5,3 @@ const USER_NAME ='root';
 const PASSWORD = '';
 const DB_NAME = 'todolist_db';
 const SALT = 'asdkljlkfjsdalfjsdklfj';
-

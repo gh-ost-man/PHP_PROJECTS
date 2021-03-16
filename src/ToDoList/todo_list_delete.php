@@ -1,7 +1,7 @@
 <?php
     require_once 'pdo_ini.php';
   
-    if($_SERVER['REQUEST_METHOD'] == "GET"){
+    if($_SERVER['REQUEST_METHOD'] == "GET") {
         
         $stmt = $pdo->prepare('DELETE FROM `lists` WHERE `id`=:id');
         
@@ -14,5 +14,3 @@
 
         Header('Location: todo_list_page.php');
     }
-
-    

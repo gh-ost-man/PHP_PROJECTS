@@ -10,8 +10,6 @@
         $stmt->execute();
 
         $tasks = $stmt->fetchAll();
-
-        //var_dump($tasks);
     }
 
     $i = 1;
@@ -39,20 +37,16 @@
                 <td ><a href="#" class="text-decoration-none" style="color:cyan;"><?= $task['name'] ?></a></td>
                 <td class="text-center">
                     <a href="#" class="text-decoration-none" style="color:cyan;"><?= $task['position'] ?></a>
-                    <button class="border-0 bg-transparent"><i class="far fa-arrow-alt-circle-up" style="color:cyan;"></i></button>
-                    <button class="border-0 bg-transparent"><i class="far fa-arrow-alt-circle-down" style="color:cyan;"></i></button>
+                    <a href="change_position.php?id=<?= $task['id']?>&list_id=<?= $_GET['list_id']?>&position=<?= $task['position']?>&increase=true" class="border-0 bg-transparent num_up" value="<?= $task['id']?>"><i class="far fa-arrow-alt-circle-up" style="color:cyan;"></i></a>
+                    <a href="change_position.php?id=<?= $task['id']?>&list_id=<?= $_GET['list_id']?>&position=<?= $task['position']?>&decrease=true" class="border-0 bg-transparent num_down" value="<?= $task['id']?>"><i class="far fa-arrow-alt-circle-down" style="color:cyan;"></i></a>
                 </td>
                 <td class="text-center"><a href="#" class="text-decoration-none" style="color:cyan;"><?= $task['created_at'] ?></a></td>
-                <!-- <td class="text-center"><input type="checkbox" name="" id=""></td> -->
-                <td class="text-center text-warning">
-                    <?php if($task['completed'] == 0) {?>
-                        <p href="#" class="text-warning p-0 m-0">not completed</p>
-                    <?php } else {?>
-                        <p href="#" class="text-info  p-0 m-0">completed</p>
-                    <?php } ?>
+                <td class="text-center">
+                    <input type="checkbox" <?= ($task['completed'])? 'checked': ''?> class="completed" value="<?= $task['id']?>">
                 </td>
-               
-                <td class="text-center"><a href="#" class="text-decoration-none" style="color:cyan;"><?= $task['completed_at'] ?></a></td>
+                <td class="text-center">
+                    <p class="text-info p-0 m-0" id="completed_text<?= $task['id']?>"><?= ($task['completed_at'])? $task['completed_at'] : '' ?></p>
+                </td>
                 <td class="text-center">
                     <a type="button" href="todo_task_delete.php?task_id=<?= $task['id'] ?>&list_id=<?= $_GET['list_id'] ?>" class="btn btn-danger">DELETE</a>
                     <a type="button" href="todo_task_create.php?task_id=<?= $task['id'] ?>&list_id=<?= $_GET['list_id'] ?>" class="btn btn-warning">UPDATE</a>
@@ -62,5 +56,35 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    $('.completed').change(function(){
+        var completed;
+        var attr = $(this).attr('checked');
+
+        if(typeof attr != typeof undefined && attr !== false){
+            $(this).removeAttr('checked');
+            completed = 0;
+        } else {
+            $(this).attr('checked','checked');
+            completed = 1;
+        }
+
+        $.post('completed_task.php',{
+            id: $(this).val(),
+            completed: completed
+        }, 
+        function (data){
+            response = JSON.parse(data);
+
+            if(response.status == 'success'){
+                $('#completed_text' + response.id).html(response.date)
+                document.location.reload();
+            } else {
+                alert('error');
+            }
+        });
+    })
+</script>
 
 <?php require_once 'layots/footer.php'; ?>

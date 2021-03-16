@@ -1,7 +1,5 @@
-<?php
-    require_once 'layots/header.php';
-?>
-
+<?php  require_once 'layots/header.php'; ?>
+    
 <div class="row">
     <div class="col-md-2"></div>
     <div class="col-md-4">
@@ -37,6 +35,4 @@
     <div class="col-md-2"></div>
 </div>
 
-<?php 
-    require_once 'layots/footer.php';
-?>
+<?php require_once 'layots/footer.php'; ?>

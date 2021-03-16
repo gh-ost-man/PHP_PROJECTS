@@ -8,9 +8,10 @@
         
         $task = $stmt->fetch();
         $op = "UPDATE";
+    } else {
+        $op = "CREATE";
     }
-    else $op = "CREATE";
-   
+    
 ?>
 
 <h1  class="text-center"><?= $op?> NEW TASK</h1>
@@ -32,14 +33,8 @@
                 </div>
                 <div class="form-group">
                     <label for="exampleFormControlInput1">POSITION</label>
-                    <input type="number" class="form-control" id="exampleFormControlInput1" value="<?= (isset($task['position'])) ? $task['position'] : ''?>"  name="position">
+                    <input type="number" min="1" class="form-control" id="exampleFormControlInput1" value="<?= (isset($task['position'])) ? $task['position'] : ''?>"  name="position">
                 </div>
-                <?php if(isset($_GET['task_id'])) { ?>
-                    <div class="form-group">
-                        <input type="checkbox" name='completed'>
-                        <label for="completed">COMPLETED</label>
-                    </div>
-                <?php } ?>
                 <button type="submit" class="btn btn-success"><?= $op ?></button>
                 <a href ="todo_task_page.php?list_id=<?= $_GET['list_id'] ?>"  class="btn btn-danger">CANCEL</a>
             </form>
@@ -51,7 +46,7 @@
 <?php 
     require_once 'layots/footer.php';
     
-    if($_SERVER['REQUEST_METHOD']=="POST"){
+    if($_SERVER['REQUEST_METHOD'] == "POST"){
 
         if(!isset($_SESSION)) session_start();
 
@@ -82,5 +77,4 @@
        
         Header('Location: todo_task_page.php?list_id=' . $_POST['list_id']);
     }
-    
 ?>

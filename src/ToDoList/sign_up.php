@@ -17,10 +17,10 @@
 
         $user = $stmt->fetch();
 
-        if($user){
+        if($user) {
             $_SESSION['error'] = "User is exists";
             Header("Location: login_page.php");
-        }else {
+        } else {
             $stmt = $pdo->prepare('INSERT INTO `users` (`email`,`password`) VALUES (:email, :password)');
             $stmt->setFetchMode(\PDO::FETCH_ASSOC);
             $stmt->bindParam(':email', $email);

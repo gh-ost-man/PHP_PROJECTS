@@ -8,7 +8,6 @@
         
         $list = $stmt->fetch();
         $op = "UPDATE";
-        var_dump($list['name']);
     }
     else $op = "CREATE";
 ?>
@@ -68,4 +67,3 @@
 
     require_once 'layots/footer.php'; 
 ?>
-   

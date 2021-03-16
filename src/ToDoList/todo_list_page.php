@@ -8,6 +8,7 @@
 
     $stmt = $pdo->prepare('SELECT * FROM `lists` WHERE `user_id`=:user ORDER BY `name`');
     $stmt->execute(['user' => $_SESSION['Auth']]);
+    
     $lists = $stmt->fetchAll();
 
     $i = 1;
@@ -39,6 +40,4 @@
     </table>
 </div>
 
-<?php
-    require_once 'layots/footer.php';
-?>
+<?php require_once 'layots/footer.php'; ?>

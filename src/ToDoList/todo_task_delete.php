@@ -14,5 +14,3 @@
 
         Header('Location: todo_task_page.php?list_id=' . $_GET['list_id'] );
     }
-
-    
